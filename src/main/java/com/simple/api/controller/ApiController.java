@@ -28,7 +28,7 @@ public class ApiController {
 
     @PostMapping("/pay/{eventId}/{seatId}/{cardId}")
     @ResponseStatus(HttpStatus.OK)
-    public Long pay(@PathVariable Long eventId, @PathVariable Long seatId, @PathVariable Long cardId, @RequestHeader("User-Token") String userToken) {
+    public Long pay(@PathVariable Long eventId, @PathVariable Long seatId, @PathVariable String cardId, @RequestHeader("User-Token") String userToken) {
         return service.pay(eventId, seatId, cardId, userToken);
     }
 }

@@ -3,12 +3,14 @@ package com.simple.api.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simple.simpleLib.dto.ExtendedEventDto;
 import com.simple.simpleLib.dto.SimpleEventDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service
 public class ApiService {
 
@@ -41,16 +43,22 @@ public class ApiService {
                 .bodyToMono(SimpleEventDto.class);
     }
 
-    public Long pay(Long eventId, Long seatId, Long cardId, String userToken) {
+    public Long pay(Long eventId, Long seatId, String cardId, String userToken) {
         validateUserToken(cardId, userToken);
 
         return 1L;
     }
 
-    private void validateUserToken(Long cardId, String userToken) {
-        coreWebClient.get()
-                .uri("/validate/{userToken}/{cardId}", userToken, cardId)
+    private void validateUserToken(String cardId, String userToken) {
+        log.info("Sending request to core module for user token and card validation");
+        boolean validationResult = coreWebClient.get()
+                .uri("core/validate/{userToken}/{cardId}", userToken, cardId)
                 .retrieve()
-                .bodyToMono(Boolean.class);
+                .bodyToMono(Boolean.class).block();
+
+        if (!validationResult) {
+            throw new RuntimeException();
+        }
+        log.info("User token with cardId successfully validated");
     }
 }
