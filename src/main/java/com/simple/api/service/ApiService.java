@@ -43,10 +43,21 @@ public class ApiService {
                 .bodyToMono(SimpleEventDto.class);
     }
 
-    public Long pay(Long eventId, Long seatId, String cardId, String userToken) {
+    public Long pay(Long eventId, String seatId, String cardId, String userToken) {
         validateUserToken(cardId, userToken);
 
-        return 1L;
+        return reserveSeatAndPay(eventId, seatId, cardId);
+    }
+
+    private Long reserveSeatAndPay(Long eventId, String seatId, String cardId) {
+        log.info("Sending request to core module for reserving event");
+        Long reservationId = coreWebClient.post()
+                .uri("core/reserve/{eventId}/{seatId}/{cardId}", eventId, seatId, cardId)
+                .retrieve()
+                .bodyToMono(Long.class).blockOptional().orElseThrow();
+
+        log.info("Seat successfully reserved with reservationId: {}", reservationId);
+        return reservationId;
     }
 
     private void validateUserToken(String cardId, String userToken) {
@@ -54,7 +65,7 @@ public class ApiService {
         boolean validationResult = coreWebClient.get()
                 .uri("core/validate/{userToken}/{cardId}", userToken, cardId)
                 .retrieve()
-                .bodyToMono(Boolean.class).block();
+                .bodyToMono(Boolean.class).blockOptional().orElseThrow();
 
         if (!validationResult) {
             throw new RuntimeException();
