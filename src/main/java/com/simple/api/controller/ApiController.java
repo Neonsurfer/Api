@@ -1,5 +1,6 @@
 package com.simple.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.simple.api.service.ApiService;
 import com.simple.simpleLib.dto.ExtendedEventDto;
 import com.simple.simpleLib.dto.SimpleEventDto;
@@ -28,7 +29,7 @@ public class ApiController {
 
     @PostMapping("/pay/{eventId}/{seatId}/{cardId}")
     @ResponseStatus(HttpStatus.OK)
-    public Long pay(@PathVariable Long eventId, @PathVariable String seatId, @PathVariable String cardId, @RequestHeader("User-Token") String userToken) {
+    public Long pay(@PathVariable Long eventId, @PathVariable String seatId, @PathVariable String cardId, @RequestHeader("User-Token") String userToken) throws JsonProcessingException {
         return service.pay(eventId, seatId, cardId, userToken);
     }
 }
